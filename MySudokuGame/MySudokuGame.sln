@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solver", "Solver\Solver.csproj", "{CDC78ABC-26CC-439D-AAF2-D5F8A38B4723}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solver", "Solver\Solver.csproj", "{CDC78ABC-26CC-439D-AAF2-D5F8A38B4723}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuComponents", "SudokuComponents\SudokuComponents.csproj", "{315111DA-7C9D-4FEA-875B-FE293BC0DF15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuComponents", "SudokuComponents\SudokuComponents.csproj", "{315111DA-7C9D-4FEA-875B-FE293BC0DF15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hints", "Hints\Hints.csproj", "{2505F324-9A29-4873-B508-7E5F1431D4C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{315111DA-7C9D-4FEA-875B-FE293BC0DF15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{315111DA-7C9D-4FEA-875B-FE293BC0DF15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{315111DA-7C9D-4FEA-875B-FE293BC0DF15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2505F324-9A29-4873-B508-7E5F1431D4C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2505F324-9A29-4873-B508-7E5F1431D4C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2505F324-9A29-4873-B508-7E5F1431D4C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2505F324-9A29-4873-B508-7E5F1431D4C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
