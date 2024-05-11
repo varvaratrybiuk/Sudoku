@@ -59,6 +59,6 @@
         <Setter Property="Foreground" Value="#FFFE7EB1"/>
         <Setter Property="FontFamily" Value="Arial"/>
         <Setter Property="TextAlignment" Value="Center"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="20"/>
     </Style>
 </ResourceDictionary>
