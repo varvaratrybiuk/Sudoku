@@ -23,7 +23,7 @@ namespace MySudoku
     public partial class Gamexaml : Window
     {
         private SudokuGame game;
-
+        private static bool ButtonSpec = false;
         public Gamexaml()
         {
             InitializeComponent();
@@ -32,53 +32,81 @@ namespace MySudoku
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             game.StartGame();
+            InitializeBoard();
+        }
+
+        private void InitializeBoard()
+        {
             for (int i = 0; i < 9; i++)
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    TextBox textBox = new TextBox();
-                    if (game.GetCells()[i] != null && game.GetCells()[i].row == i && game.GetCells()[i].col == j)
-                    {
-                        textBox.Text = game.GetCells()[i].value.ToString();
-                        textBox.IsReadOnly = true;
-                    }
-                    else
-                    {
-                        textBox.TextChanged += Cell_TextChanged;
-                       
-                    }
+                    TextBox textBox = CreateTextBox(i, j);
                     Field.Children.Add(textBox);
                     Grid.SetRow(textBox, i);
                     Grid.SetColumn(textBox, j);
                 }
             }
-            
+        }
+
+        private TextBox CreateTextBox(int i, int j)
+        {
+            TextBox textBox = new TextBox();
+            Cell cell = game.GetCells()[i];
+            if (cell != null && cell.row == i && cell.col == j)
+            {
+                textBox.Text = cell.value.ToString();
+                textBox.IsReadOnly = true;
+            }
+            else
+            {
+                textBox.TextChanged += Cell_TextChanged;
+                textBox.PreviewMouseDown += Cell_PreviewMouseDown;
+            }
+            return textBox;
         }
 
         private void Cell_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox? textBox = sender as TextBox;
-            if (textBox != null)
+            if (textBox != null && int.TryParse(textBox.Text, out int value))
             {
-                int row = Grid.GetRow(textBox);
-                int column = Grid.GetColumn(textBox);
-                if (int.TryParse(textBox.Text, out int value))
-                {
-                    game.AddToBoard([row, column], value);
-                    textBox.IsReadOnly = true;
-                }
+                game.AddToBoard([Grid.GetRow(textBox), Grid.GetColumn(textBox)], value);
+                textBox.IsReadOnly = true;
             }
         }
-      
-        private void Random(object sender, RoutedEventArgs e)
+
+        private void Random(object sender, RoutedEventArgs e) => UsedHint(new OpenRandomCell(9));
+
+        private void Specific(object sender, RoutedEventArgs e) => ButtonSpec = true;
+
+        private void Cell_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.ClickCount == 1 && ButtonSpec && sender is TextBox textBox)
+            {
+                UsedHint(new OpenSpecificCell(Grid.GetRow(textBox), Grid.GetColumn(textBox)));
+                ButtonSpec = false;
+            }
         }
 
-        private void Specific(object sender, RoutedEventArgs e)
+        private void UpdateTextBox(Cell cell)
         {
+            TextBox? textBox = Field.Children.OfType<TextBox>().FirstOrDefault(t => Grid.GetRow(t) == cell.row && Grid.GetColumn(t) == cell.col);
+            if (textBox != null)
+            {
+                textBox.TextChanged -= Cell_TextChanged;
+                textBox.IsReadOnly = true;
+                textBox.Text = cell.value.ToString();
+            }
         }
-      
 
+        private void UsedHint(IHint hint)
+        {
+            if (game.OpenCell(hint))
+            {
+                UpdateTextBox(game.GetCells().Last());
+            }
+        }
         private void CheckSudoku(object sender, RoutedEventArgs e)
         {
 
