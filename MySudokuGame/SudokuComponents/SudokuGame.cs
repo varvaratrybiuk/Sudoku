@@ -11,12 +11,12 @@ namespace SudokuComponents
 {
     public class SudokuGame
     {
-        private Board board;
+        public Board board { get; }
         private IHint? _hint;
         private Generator _solver;
         public SudokuGame(SudokuLvl lvl)
         {
-            this.board = new Board((int)lvl);
+            board = new Board((int)lvl);
             _solver = new Generator(lvl);
         }
         public void StartGame()
@@ -62,6 +62,12 @@ namespace SudokuComponents
                 board.TryFillCell(new Cell(values, n));
                 return true;
             }
+            return false;
+        }
+        public bool FullBoard()
+        {
+            if(board.cells.Count == _solver.SolvedSudoku.Length)
+                return true;
             return false;
         }
         public List<Cell> GetCells()
