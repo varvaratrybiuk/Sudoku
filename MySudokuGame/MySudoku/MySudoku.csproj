@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Rating\Rating.csproj" />
     <ProjectReference Include="..\Solver\Solver.csproj" />
     <ProjectReference Include="..\SudokuComponents\SudokuComponents.csproj" />
   </ItemGroup>

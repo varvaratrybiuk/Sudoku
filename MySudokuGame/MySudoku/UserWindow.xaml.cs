@@ -1,6 +1,9 @@
-﻿using Solver;
+﻿using Rating;
+using Solver;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +34,10 @@ namespace MySudoku
             InitializeComponent();
             lvls.ItemsSource = Levels.Keys;
             lvls.SelectedIndex = 0;
+            var ratingTable = new RatingGenerator().GenerateDataTable();
+            rating.ItemsSource = ratingTable.DefaultView;
         }
-
+      
         private void Start(object sender, RoutedEventArgs e)
         {
             if(lvls.SelectedValue is string)

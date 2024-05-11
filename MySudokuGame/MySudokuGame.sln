@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuComponents", "SudokuC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hints", "Hints\Hints.csproj", "{2505F324-9A29-4873-B508-7E5F1431D4C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySudoku", "MySudoku\MySudoku.csproj", "{616896AE-FF8F-49EB-8684-734224372DF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySudoku", "MySudoku\MySudoku.csproj", "{616896AE-FF8F-49EB-8684-734224372DF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rating", "Rating\Rating.csproj", "{3EECF90D-8ABA-48F4-BC62-F32F216501C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{616896AE-FF8F-49EB-8684-734224372DF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{616896AE-FF8F-49EB-8684-734224372DF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{616896AE-FF8F-49EB-8684-734224372DF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EECF90D-8ABA-48F4-BC62-F32F216501C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EECF90D-8ABA-48F4-BC62-F32F216501C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EECF90D-8ABA-48F4-BC62-F32F216501C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EECF90D-8ABA-48F4-BC62-F32F216501C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

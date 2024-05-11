@@ -4,6 +4,7 @@ using SudokuComponents;
 using SudokuComponents.Memento;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,18 +29,36 @@ namespace MySudoku
         private static bool ButtonSpec = false;
         private BoardEditor? BoardEditor;
         private SudokuLvl _lvl = SudokuLvl.Normal;
+        Stopwatch stopWatch = new Stopwatch();
+        DispatcherTimer dt = new DispatcherTimer();
 
         public Gamexaml()
         {
             InitializeComponent();
             game = new SudokuGame(SudokuLvl.Normal);
+            StartStopWatch();
         }
-
+        private void StartStopWatch()
+        {
+            stopWatch.Start();
+            dt.Tick += new EventHandler(dt_Tick);
+            dt.Interval = new TimeSpan(0, 0, 0, 0, 1);
+        }
+        void dt_Tick(object? sender, EventArgs e)
+        {
+            if (stopWatch.IsRunning)
+            {
+                TimeSpan ts = stopWatch.Elapsed;
+                time.Content = string.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+                time.Content = time;
+            }
+        }
         public Gamexaml(SudokuLvl lvl)
         {
             InitializeComponent();
             _lvl = lvl;
             game = new SudokuGame(_lvl);
+            StartStopWatch();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -119,6 +138,7 @@ namespace MySudoku
                 ButtonSpec = false;
             }
         }
+       
 
         private void UpdateTextBox(Cell cell)
         {
@@ -141,6 +161,7 @@ namespace MySudoku
         }
         private void Redirection()
         {
+            stopWatch.Stop();
             var userWindow = new UserWindow();
             userWindow.Show();
             Hide();
@@ -170,6 +191,7 @@ namespace MySudoku
             }
             if (game.FullBoard())
             {
+              
                 MessageBox.Show("Good Job!", "Win", MessageBoxButton.OK, MessageBoxImage.Information);
                 Redirection();
             }
@@ -204,7 +226,11 @@ namespace MySudoku
         {
            var result = MessageBox.Show("Are you sure?", "Stop game", MessageBoxButton.YesNo, MessageBoxImage.None);
             if (result == MessageBoxResult.Yes)
+            {
+                
                 Redirection();
+            }
+            
         }
     }
 }

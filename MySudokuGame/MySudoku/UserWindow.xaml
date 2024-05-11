@@ -27,11 +27,11 @@
             <RowDefinition Height="20"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="1" Grid.Column="1" Text="Rating"/>
-        <DataGrid Grid.Row="2" Grid.RowSpan="2" Grid.Column="1"></DataGrid>
+        <DataGrid x:Name="rating" Grid.Row="2" Grid.RowSpan="2" Grid.Column="1" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" IsReadOnly="True" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserReorderColumns="False"></DataGrid>
         <TextBlock Grid.Row="1" HorizontalAlignment="Center" Grid.Column="2" Text="Levels"/>
         <ComboBox x:Name="lvls" Grid.Row="2" Width ="150" HorizontalAlignment="Center" Grid.Column="2"/>
         <Button Grid.Row="3" VerticalAlignment="Top" Grid.Column="2" Content="Start" Click="Start"/>

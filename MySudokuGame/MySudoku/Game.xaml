@@ -33,7 +33,7 @@
         <UniformGrid Grid.Row="1" Grid.RowSpan="2" Grid.Column="3"  x:Name="Field">
         </UniformGrid>
         <TextBlock Grid.Row="1" Grid.Column="1">Час: </TextBlock>
-        <Label Grid.Row="1" Grid.Column="2"></Label>
+        <Label x:Name="time" Grid.Row="1" Grid.Column="2"></Label>
         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="1" Name="ButtonsBox" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Button x:Name="ButtonRandom" Content="Open Random Cell" Click="Random"/>
             <Button x:Name="BattonSpecific" Content="Open Specific Cell" Click="Specific"/>
