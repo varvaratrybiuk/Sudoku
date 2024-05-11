@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Hints\Hints.csproj" />
+    <ProjectReference Include="..\Solver\Solver.csproj" />
+  </ItemGroup>
+
 </Project>
