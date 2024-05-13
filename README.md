@@ -9,7 +9,7 @@
 
 ## Programming Principles
 
-+ KISS
+** KISS**
 
 Більшість методів, які є в програмі мають просту логіку, що дає легко зрозуміти, що кожен метод виконує, приклади:
 	
@@ -19,7 +19,7 @@
 	
 * [InitializeBoard](./MySudokuGame/SudokuComponents/Game.xaml.cs#L72-L86)
 
-+ DRY
+** DRY **
 
 Частини коду програми, що повторюються винесені в окремі методи, прикладии:
 	
@@ -27,16 +27,16 @@
 	
 * [Redirection](./MySudokuGame/SudokuComponents/Game.xaml.cs#L160-L165)
 
-+ YAGNI
+** YAGNI **
 
 В програмі реалізовани основний функціонал, який відповідає MVP
 
-+ Open/Closed
+** Open/Closed **
 
 Реалізовано його в бібліотеці класів [Hints](./MySudokuGame/Hints). Тобто у нас є загальний інтерфейс IHits, який має 
 свої методи, а класи OpenRandomCell та OpenSpecificCell  можуть їх перевизначати та додавати свої унікальні методи.
 
-+ Single Responsibility Principle
+** Single Responsibility Principle **
 
 Класи [SudokuGame](./MySudokuGame/SudokuComponents/SudokuGame.cs), [Board](./MySudokuGame/SudokuComponents/Board.cs),
  [Generator](./MySudokuGame/Solver/Generator.cs) вирішують лише одну здачу.
