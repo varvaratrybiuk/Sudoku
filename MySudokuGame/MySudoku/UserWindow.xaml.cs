@@ -34,8 +34,7 @@ namespace MySudoku
             InitializeComponent();
             lvls.ItemsSource = Levels.Keys;
             lvls.SelectedIndex = 0;
-            var ratingTable = new RatingGenerator().GenerateDataTable();
-            rating.ItemsSource = ratingTable.DefaultView;
+     
         }
       
         private void Start(object sender, RoutedEventArgs e)
@@ -52,6 +51,17 @@ namespace MySudoku
         private void Window_Closed(object sender, EventArgs e)
         {
             Application.Current.Shutdown();
+        }
+
+        private void lvls_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (lvls.SelectedValue is string)
+            {
+                string choosedlvl = (string)lvls.SelectedValue;
+                var ratingTable = new RatingGenerator().GenerateDataTable(choosedlvl);
+                rating.ItemsSource = ratingTable.DefaultView;
+            }
+          
         }
     }
 }

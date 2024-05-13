@@ -1,79 +1,98 @@
 ﻿using OfficeOpenXml;
+using System;
 using System.Data;
+using System.IO;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
 namespace Rating
 {
     public class RatingGenerator
     {
-        private string _filePath = "C:\\Users\\User\\Desktop\\2 курс 2 семестр\\Lab6\\MySudokuGame\\Rating\\Rating.xlsx";
-
-        public string[,] ReadRatingFile()
+        private string _filePath = Path.GetFullPath("../../../../Rating/Rating.xlsx");
+        public RatingGenerator() { }
+        public RatingGenerator(string filePath)
+        {
+            _filePath = Path.GetFullPath(filePath);
+        }
+        public Dictionary<string, List<string>> ReadRatingFile()
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             FileInfo fileInfo = new FileInfo(_filePath);
-            string[,] data;
+            Dictionary<string, List<string>> data = new();
 
             using (ExcelPackage package = new ExcelPackage(fileInfo))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                 int rowCount = worksheet.Dimension.End.Row;
                 int colCount = worksheet.Dimension.End.Column;
-                data = new string[rowCount, colCount];
 
-                for (int rowNumber = 1; rowNumber <= rowCount; rowNumber++)
+                for (int colNumber = 1; colNumber <= colCount; colNumber++)
                 {
-                    for (int colNumber = 1; colNumber <= colCount; colNumber++)
+                    List<string> columnData = new List<string>();
+                    string columnName = worksheet.Cells[1, colNumber].Value?.ToString();
+                    for (int rowNumber = 2; rowNumber <= rowCount; rowNumber++)
                     {
-                        data[rowNumber - 1, colNumber - 1] = worksheet.Cells[rowNumber, colNumber].Value?.ToString();
+                        columnData.Add(worksheet.Cells[rowNumber, colNumber].Value?.ToString());
                     }
+
+                    data.Add(columnName, columnData);
                 }
             }
 
             return data;
         }
-        public DataTable GenerateDataTable()
+        public DataTable GenerateDataTable(string chooselvl)
         {
             DataTable dt = new DataTable();
-            var excelReader = new RatingGenerator();
-            string[,] data = excelReader.ReadRatingFile();
-            int nbColumns = data.GetLength(1);
-            int nbRows = data.GetLength(0);
-            for (int col = 0; col < nbColumns; col++)
+            var data = ReadRatingFile();
+
+            if (data.ContainsKey(chooselvl))
             {
-                dt.Columns.Add(data[0, col]);
-            }
-            for (int row = 1; row < nbRows; row++)
-            {
-                DataRow dr = dt.NewRow();
-                for (int col = 0; col < nbColumns; col++)
+                dt.Columns.Add(chooselvl);
+
+                int nbRows = data[chooselvl].Count;
+
+                for (int row = 0; row < nbRows; row++)
                 {
-                    dr[col] = data[row, col];
+                    DataRow dr = dt.NewRow();
+                    dr[chooselvl] = data[chooselvl][row];
+                    dt.Rows.Add(dr);
                 }
-                dt.Rows.Add(dr);
+                var orderedRows = dt.AsEnumerable()
+                        .Where(r => !string.IsNullOrEmpty(r.Field<string>(chooselvl)))
+                        .OrderBy(r => r.Field<string>(chooselvl)).Take(10);
+                if(orderedRows.Any()) 
+                    dt = orderedRows.CopyToDataTable();
             }
 
             return dt;
         }
-        public void  WriteToFile(DataTable dataTable)
+        public void  WriteToFile(string columnName, string time)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
             FileInfo fileInfo = new FileInfo(_filePath);
 
-            using (ExcelPackage package = new ExcelPackage(fileInfo)) { 
-
+            using (ExcelPackage package = new ExcelPackage(fileInfo))
+            {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                int startRow = worksheet.Dimension == null ? 1 : worksheet.Dimension.End.Row + 1;
-                for (int i = 0; i < dataTable.Rows.Count; i++)
+                int rowCount = worksheet.Dimension.End.Row;
+                int colCount = worksheet.Dimension.End.Column;
+                int columnIndex = 0;
+                for (int i = 1; i <= colCount; i++)
                 {
-                    for (int j = 0; j < dataTable.Columns.Count; j++)
+                    if (worksheet.Cells[1, i].Value.ToString() == columnName)
                     {
-                        worksheet.Cells[startRow + i, j + 1].Value = dataTable.Rows[i][j].ToString();
+                        columnIndex = i;
+                        break;
                     }
                 }
-
+                if (columnIndex == 0)
+                {
+                    return;
+                }
+                worksheet.Cells[rowCount + 1, columnIndex].Value = time;
                 package.Save();
             }
         }

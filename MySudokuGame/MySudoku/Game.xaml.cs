@@ -1,9 +1,11 @@
 ﻿using Hints;
+using Rating;
 using Solver;
 using SudokuComponents;
 using SudokuComponents.Memento;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -38,21 +40,6 @@ namespace MySudoku
             game = new SudokuGame(SudokuLvl.Normal);
             StartStopWatch();
         }
-        private void StartStopWatch()
-        {
-            stopWatch.Start();
-            dt.Tick += new EventHandler(dt_Tick);
-            dt.Interval = new TimeSpan(0, 0, 0, 0, 1);
-        }
-        void dt_Tick(object? sender, EventArgs e)
-        {
-            if (stopWatch.IsRunning)
-            {
-                TimeSpan ts = stopWatch.Elapsed;
-                time.Content = string.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-                time.Content = time;
-            }
-        }
         public Gamexaml(SudokuLvl lvl)
         {
             InitializeComponent();
@@ -60,7 +47,21 @@ namespace MySudoku
             game = new SudokuGame(_lvl);
             StartStopWatch();
         }
-
+        private  void StartStopWatch()
+        {
+            stopWatch.Start();
+            dt.Tick += new EventHandler(dt_Tick);
+            dt.Interval = new TimeSpan(0, 0, 0, 0, 1);
+            dt.Start();
+        }
+        void dt_Tick(object? sender, EventArgs e)
+        {
+            if (stopWatch.IsRunning)
+            {
+                TimeSpan ts = stopWatch.Elapsed;
+                time.Content = string.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+            }
+        }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             game.StartGame();
@@ -142,7 +143,11 @@ namespace MySudoku
 
         private void UpdateTextBox(Cell cell)
         {
-            var border = Field.Children.OfType<Border>().FirstOrDefault(t => Grid.GetRow(t) == cell.row && Grid.GetColumn(t) == cell.col);
+            var border = Field.Children.OfType<Border>().FirstOrDefault(b =>
+            {
+                TextBox? textBox = b.Child as TextBox;
+                return textBox != null && Grid.GetRow(textBox) == cell.row && Grid.GetColumn(textBox) == cell.col;
+            });
             TextBox? textBox = border?.Child as TextBox;
             if (textBox != null)
             {
@@ -155,13 +160,10 @@ namespace MySudoku
         private void UsedHint(IHint hint)
         {
             if (game.OpenCell(hint))
-            {
                 UpdateTextBox(game.GetCells().Last());
-            }
         }
         private void Redirection()
         {
-            stopWatch.Stop();
             var userWindow = new UserWindow();
             userWindow.Show();
             Hide();
@@ -191,7 +193,8 @@ namespace MySudoku
             }
             if (game.FullBoard())
             {
-              
+                stopWatch.Stop();
+                new RatingGenerator().WriteToFile(_lvl.ToString(), time.Content.ToString());
                 MessageBox.Show("Good Job!", "Win", MessageBoxButton.OK, MessageBoxImage.Information);
                 Redirection();
             }
@@ -227,10 +230,9 @@ namespace MySudoku
            var result = MessageBox.Show("Are you sure?", "Stop game", MessageBoxButton.YesNo, MessageBoxImage.None);
             if (result == MessageBoxResult.Yes)
             {
-                
+                stopWatch.Stop();
                 Redirection();
-            }
-            
+            } 
         }
     }
 }
