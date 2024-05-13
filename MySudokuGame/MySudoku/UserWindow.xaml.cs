@@ -34,18 +34,27 @@ namespace MySudoku
             InitializeComponent();
             lvls.ItemsSource = Levels.Keys;
             lvls.SelectedIndex = 0;
-     
         }
-      
+
         private void Start(object sender, RoutedEventArgs e)
         {
-            if(lvls.SelectedValue is string)
+            if (TryGetSelectedLevel(out SudokuLvl level))
             {
-                string choosedlvl = (string)lvls.SelectedValue;
-                var Game = new Gamexaml(Levels[choosedlvl]);
-                Game.Show();
+                var game = new Gamexaml(level);
+                game.Show();
                 Hide();
             }
+        }
+
+        private bool TryGetSelectedLevel(out SudokuLvl level)
+        {
+            level = SudokuLvl.Easy;
+            if (lvls.SelectedValue is string choosedlvl && Levels.TryGetValue(choosedlvl, out SudokuLvl lvl))
+            {
+                level = lvl;
+                return true;
+            }
+            return false;
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -55,13 +64,9 @@ namespace MySudoku
 
         private void lvls_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (lvls.SelectedValue is string)
-            {
-                string choosedlvl = (string)lvls.SelectedValue;
-                var ratingTable = new RatingGenerator().GenerateDataTable(choosedlvl);
-                rating.ItemsSource = ratingTable.DefaultView;
-            }
-          
+            if (TryGetSelectedLevel(out SudokuLvl level))
+                rating.ItemsSource = new RatingGenerator().GenerateDataTable((string)lvls.SelectedValue).DefaultView;
         }
+
     }
 }

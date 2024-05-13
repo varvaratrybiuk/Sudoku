@@ -2,9 +2,9 @@
 {
     public class Cell
     {
-        public int row {  get; set; }
-        public int col { get; set; }
-         public int value { get; set; }
+        public int row {  get;}
+        public int col { get;}
+         public int value { get;}
         public Cell(int[] cell, int value)
         {
             this.row = cell[0];

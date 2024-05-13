@@ -93,20 +93,19 @@ namespace MySudoku
                 BorderThickness = GetThickness(i, j)
             };
             if (cell != null)
-            {
-                textBox.Text = cell.value.ToString();
-                textBox.IsReadOnly = true;
-                textBox.Name = "Use";
-            }
+                {
+                    textBox.Text = cell.value.ToString();
+                    textBox.IsReadOnly = true;
+                    textBox.Name = "Use";
+                }
             else
-            {
-                textBox.TextChanged += Cell_TextChanged;
-                textBox.PreviewMouseDown += Cell_PreviewMouseDown;
-            }
+                {
+                    textBox.TextChanged += Cell_TextChanged;
+                    textBox.PreviewMouseDown += Cell_PreviewMouseDown;
+                }
             border.Child = textBox;
             return border;
         }
-
         private Thickness GetThickness(int i, int j)
         {
             var top = i % Math.Sqrt((int)_lvl) == 0 ? 1 : 0;
@@ -115,7 +114,6 @@ namespace MySudoku
             var right = j % Math.Sqrt((int)_lvl) == Math.Sqrt((int)_lvl) - 1 ? 1 : 0;
             return new Thickness(left, top, right, bottom);
         }
-
         private void Cell_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox? textBox = sender as TextBox;
@@ -126,7 +124,6 @@ namespace MySudoku
                 textBox.IsReadOnly = true;
             }
         }
-
         private void Random(object sender, RoutedEventArgs e) => UsedHint(new OpenRandomCell((int)_lvl));
 
         private void Specific(object sender, RoutedEventArgs e) => ButtonSpec = true;
@@ -139,8 +136,6 @@ namespace MySudoku
                 ButtonSpec = false;
             }
         }
-       
-
         private void UpdateTextBox(Cell cell)
         {
             var border = Field.Children.OfType<Border>().FirstOrDefault(b =>
@@ -170,6 +165,11 @@ namespace MySudoku
         }
         private void CheckSudoku(object sender, RoutedEventArgs e)
         {
+            CheckCells();
+            CheckIfSudokuSolved();
+        }
+        private void CheckCells()
+        {
             foreach (var border in Field.Children.OfType<Border>())
             {
                 TextBox? cell = border.Child as TextBox;
@@ -191,6 +191,9 @@ namespace MySudoku
                     }
                 }
             }
+        }
+        private void CheckIfSudokuSolved()
+        {
             if (game.FullBoard())
             {
                 stopWatch.Stop();
