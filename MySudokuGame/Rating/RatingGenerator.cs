@@ -9,11 +9,30 @@ namespace Rating
 {
     public class RatingGenerator
     {
-        private string _filePath = Path.GetFullPath("../../../../Rating/Rating.xlsx");
-        public RatingGenerator() { }
-        public RatingGenerator(string filePath)
+        private static RatingGenerator _instance;
+        private static readonly object _lock = new object();
+        private string _filePath;
+
+        private RatingGenerator() { }
+
+        public static RatingGenerator GetInstance(string filePath = null)
         {
-            _filePath = Path.GetFullPath(filePath);
+            if (_instance == null)
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new RatingGenerator();
+                        _instance._filePath = filePath != null ? filePath : Path.GetFullPath("../../../../Rating/Rating.xlsx");
+                        if (!File.Exists(_instance._filePath))
+                        {
+                            throw new FileNotFoundException($"File not found: {_instance._filePath}");
+                        }
+                    }
+                }
+            }
+            return _instance;
         }
         public Dictionary<string, List<string>> ReadRatingFile()
         {
@@ -36,35 +55,40 @@ namespace Rating
                     {
                         columnData.Add(worksheet.Cells[rowNumber, colNumber].Value?.ToString());
                     }
-
+                    columnData.Sort((a, b) =>
+                    {
+                        if (a == null && b == null) return 0;
+                        if (a == null) return 1;
+                        if (b == null) return -1;
+                        return a.CompareTo(b);
+                    });
                     data.Add(columnName, columnData);
                 }
             }
 
             return data;
         }
-        public DataTable GenerateDataTable(string chooselvl)
+        public DataTable GenerateDataTable()
         {
             DataTable dt = new DataTable();
             var data = ReadRatingFile();
 
-            if (data.ContainsKey(chooselvl))
+            foreach (var columnName in data.Keys)
             {
-                dt.Columns.Add(chooselvl);
+                dt.Columns.Add(columnName);
+            }
 
-                int nbRows = data[chooselvl].Count;
+            int nbRows = data.Values.First().Count;
 
-                for (int row = 0; row < nbRows; row++)
+            for (int row = 0; row < nbRows; row++)
+            {
+                DataRow dr = dt.NewRow();
+                int col = 0;
+                foreach (var columnData in data.Values)
                 {
-                    DataRow dr = dt.NewRow();
-                    dr[chooselvl] = data[chooselvl][row];
-                    dt.Rows.Add(dr);
+                    dr[col++] = columnData[row];
                 }
-                var orderedRows = dt.AsEnumerable()
-                        .Where(r => !string.IsNullOrEmpty(r.Field<string>(chooselvl)))
-                        .OrderBy(r => r.Field<string>(chooselvl)).Take(10);
-                if(orderedRows.Any()) 
-                    dt = orderedRows.CopyToDataTable();
+                dt.Rows.Add(dr);
             }
 
             return dt;

@@ -192,12 +192,13 @@ namespace MySudoku
                 }
             }
         }
+
         private void CheckIfSudokuSolved()
         {
             if (game.FullBoard())
             {
                 stopWatch.Stop();
-                new RatingGenerator().WriteToFile(_lvl.ToString(), time.Content.ToString());
+                RatingGenerator.GetInstance().WriteToFile(_lvl.ToString(), time.Content.ToString());
                 MessageBox.Show("Good Job!", "Win", MessageBoxButton.OK, MessageBoxImage.Information);
                 Redirection();
             }
