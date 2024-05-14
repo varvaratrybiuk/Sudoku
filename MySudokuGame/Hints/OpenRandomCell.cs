@@ -8,18 +8,39 @@ namespace Hints
 {
     public class OpenRandomCell : IHint
     {
-        private int _FieldSize;
+        private int[,] _openedCells;
 
-        public OpenRandomCell(int fieldSize)
+        public OpenRandomCell(int[,] openedCells)
         {
-            _FieldSize = fieldSize;
+            _openedCells = openedCells;
         }
+
         public int[] Execute()
         {
+            List<(int, int)> freeCells = new List<(int, int)>();
+
+            for (int i = 0; i < _openedCells.GetLength(0); i++)
+            {
+                for (int j = 0; j < _openedCells.GetLength(1); j++)
+                {
+                    if (_openedCells[i, j] == 0)
+                        freeCells.Add(new(i, j));
+                }
+            }
+
+            if (freeCells.Count == 0)
+            {
+                return null; // no free cells
+            }
+
             Random random = new Random();
-            int i = random.Next(1, _FieldSize);
-            int j = random.Next(1, _FieldSize);
-            return [i, j];
+
+            int randomIndex = random.Next(0, freeCells.Count);
+
+            int row = freeCells[randomIndex].Item1;
+
+            int col = freeCells[randomIndex].Item2;
+            return [row, col];
         }
     }
 }
