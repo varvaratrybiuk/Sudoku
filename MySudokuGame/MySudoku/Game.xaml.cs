@@ -1,4 +1,5 @@
 ﻿using Hints;
+using MySudoku.Extensions;
 using Rating;
 using Solver;
 using SudokuComponents;
@@ -124,7 +125,7 @@ namespace MySudoku
                 textBox.IsReadOnly = true;
             }
         }
-        private void Random(object sender, RoutedEventArgs e) => UsedHint(new OpenRandomCell((int)_lvl));
+        private void Random(object sender, RoutedEventArgs e) => UsedHint(new OpenRandomCell(game.board.GetOpenedCells()));
 
         private void Specific(object sender, RoutedEventArgs e) => ButtonSpec = true;
 
