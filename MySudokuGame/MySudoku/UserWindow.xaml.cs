@@ -34,6 +34,7 @@ namespace MySudoku
             InitializeComponent();
             lvls.ItemsSource = Levels.Keys;
             lvls.SelectedIndex = 0;
+            rating.ItemsSource = RatingGenerator.GetInstance().GenerateDataTable().DefaultView;
         }
 
         private void Start(object sender, RoutedEventArgs e)
@@ -60,12 +61,6 @@ namespace MySudoku
         private void Window_Closed(object sender, EventArgs e)
         {
             Application.Current.Shutdown();
-        }
-
-        private void lvls_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (TryGetSelectedLevel(out SudokuLvl level))
-                rating.ItemsSource = new RatingGenerator().GenerateDataTable((string)lvls.SelectedValue).DefaultView;
         }
 
     }
