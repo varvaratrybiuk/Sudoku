@@ -1,5 +1,4 @@
 ﻿using Hints;
-using MySudoku.Extensions;
 using Rating;
 using Solver;
 using SudokuComponents;
@@ -23,9 +22,6 @@ using System.Windows.Threading;
 
 namespace MySudoku
 {
-    /// <summary>
-    /// Interaction logic for Gamexaml.xaml
-    /// </summary>
     public partial class Gamexaml : Window
     {
         private SudokuGame game;
@@ -125,7 +121,11 @@ namespace MySudoku
                 textBox.IsReadOnly = true;
             }
         }
-        private void Random(object sender, RoutedEventArgs e) => UsedHint(new OpenRandomCell(game.board.GetOpenedCells()));
+        private void Random(object sender, RoutedEventArgs e)
+        {
+            var infoarray = game.GetCells().Select(cell => new int[] { cell.row, cell.col }).ToList();
+            UsedHint(new OpenRandomCell(infoarray, (int)_lvl));
+        }
 
         private void Specific(object sender, RoutedEventArgs e) => ButtonSpec = true;
 

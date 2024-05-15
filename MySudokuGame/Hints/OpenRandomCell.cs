@@ -8,39 +8,30 @@ namespace Hints
 {
     public class OpenRandomCell : IHint
     {
-        private int[,] _openedCells;
+        private List<int[]> _usedCells;
+        private int _size;
 
-        public OpenRandomCell(int[,] openedCells)
+        public OpenRandomCell(List<int[]> usedCells, int size)
         {
-            _openedCells = openedCells;
+            _usedCells = usedCells;
+            _size = size;
         }
 
         public int[] Execute()
         {
-            List<(int, int)> freeCells = new List<(int, int)>();
-
-            for (int i = 0; i < _openedCells.GetLength(0); i++)
+            var random = new Random();
+            int i, j;
+            var availableCells = Enumerable.Range(0, _size)
+                                            .SelectMany(row => Enumerable.Range(0, _size).Select(col => new int[] { row, col }))
+                                            .Where(cell => !_usedCells.Any(uc => uc[0] == cell[0] && uc[1] == cell[1]))
+                                            .ToList();
+            if (availableCells.Count == 0)
             {
-                for (int j = 0; j < _openedCells.GetLength(1); j++)
-                {
-                    if (_openedCells[i, j] == 0)
-                        freeCells.Add(new(i, j));
-                }
+                return null;
             }
-
-            if (freeCells.Count == 0)
-            {
-                return null; // no free cells
-            }
-
-            Random random = new Random();
-
-            int randomIndex = random.Next(0, freeCells.Count);
-
-            int row = freeCells[randomIndex].Item1;
-
-            int col = freeCells[randomIndex].Item2;
-            return [row, col];
+            int index = random.Next(0, availableCells.Count);
+            int[] cell = availableCells[index];
+            return cell;
         }
     }
 }
