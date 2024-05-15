@@ -51,7 +51,7 @@
 + Facade
 
 Використовується даний паттерн в [SudokuGame](./MySudokuGame/SudokuComponents/SudokuGame.cs) та 
-[Game.xaml.cs](./MySudokuGame/SudokuComponents/Game.xaml.cs). Використовується для того, щоб мінімізувати зв'язок між 
+[Game.xaml.cs](./MySudokuGame/MySudoku/Game.xaml.cs). Використовується для того, щоб мінімізувати зв'язок між 
 класами.
 
 + Command
