@@ -17,15 +17,15 @@
 	
 * [Check](./MySudokuGame/SudokuComponents/SudokuGame.cs#L56-L66)
 	
-* [InitializeBoard](./MySudokuGame/SudokuComponents/Game.xaml.cs#L72-L86)
+* [InitializeBoard](./MySudokuGame/MySudoku/Game.xaml.cs#L72-L86)
 
 **DRY**
 
 Частини коду програми, що повторюються винесені в окремі методи, прикладии:
 	
-* [StartStopWatch](./MySudokuGame/SudokuComponents/Game.xaml.cs#L50-L56)
+* [StartStopWatch](./MySudokuGame/MySudoku/Game.xaml.cs#L50-L56)
 	
-* [Redirection](./MySudokuGame/SudokuComponents/Game.xaml.cs#L160-L165)
+* [Redirection](./MySudokuGame/MySudoku/Game.xaml.cs#L160-L165)
 
 **YAGNI**
 
@@ -58,6 +58,10 @@
 
 Реалізований у бібліотеці класів [Hints](./MySudokuGame/Hints). Використовується, щоб викликати різні підсказки в залежності 
 від вибору користувача.
+
++ Singleton
+
+Реалізований в папці [Rating](./MySudokuGame/Rating) клас [RatingGenerator](./MySudokuGame/Rating/RatingGenerator.cs). Використовується для того, щоб забезпечити спільний доступ, до файлу.
 
 ## Refactoring Techniques
 
