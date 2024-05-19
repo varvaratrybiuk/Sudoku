@@ -3,16 +3,18 @@ using System.Reflection.Emit;
 
 namespace Solver
 {
-    public  class Generator
+    public class Generator
     {
-        public  int[,] SolvedSudoku { get; private set; }
-        public  SudokuLvl _level;
-        private  int SudokeSize;
-        public Generator( SudokuLvl level)
+        public int[,] SolvedSudoku { get; private set; }
+        private readonly SudokuLvl _level;
+        private readonly int SudokuSize;
+        private static readonly Random _random = new Random();
+
+        public Generator(SudokuLvl level)
         {
             _level = level;
-            SudokeSize = (int)_level;
-            SolvedSudoku = new int[(int)_level, (int)_level];
+            SudokuSize = (int)_level;
+            SolvedSudoku = new int[SudokuSize, SudokuSize];
         }
 
         public bool Generate()
@@ -21,12 +23,12 @@ namespace Solver
             return GenerateHelper(0, 0, array);
         }
 
-        private  bool GenerateHelper(int i, int j, List<int> array)
+        private bool GenerateHelper(int i, int j, List<int> array)
         {
-            if (i == SudokeSize)
+            if (i == SudokuSize)
             {
                 i = 0;
-                if (++j == SudokeSize)
+                if (++j == SudokuSize)
                     return true;
             }
             if (SolvedSudoku[i, j] != 0)
@@ -34,7 +36,7 @@ namespace Solver
 
             foreach (var number in array)
             {
-                if (isSafe(number, i, j))
+                if (IsSafe(number, i, j))
                 {
                     SolvedSudoku[i, j] = number;
                     if (GenerateHelper(i + 1, j, array))
@@ -44,47 +46,58 @@ namespace Solver
             }
             return false;
         }
-        private  List<int> ShuffleMix()
+
+        private List<int> ShuffleMix()
         {
-            var numbers = Enumerable.Range(1, SudokeSize).ToList();
-            Random rad = new Random();
-            for (int i = numbers.Count - 1; i >= 1; i--)
+            var numbers = Enumerable.Range(1, SudokuSize).ToList();
+            for (int i = numbers.Count - 1; i > 0; i--)
             {
-                int j = rad.Next(i + 1);
-                int tmp = numbers[j];
-                numbers[j] = numbers[i];
-                numbers[i] = tmp;
+                int j = _random.Next(i + 1);
+                (numbers[i], numbers[j]) = (numbers[j], numbers[i]);
             }
             return numbers;
         }
-        private  bool isSafe(int number, int i, int j)
+
+        private bool IsSafe(int number, int row, int col)
         {
+            return IsRowSafe(number, row) && IsColumnSafe(number, col) && IsBoxSafe(number, row, col);
+        }
 
-            for (int x = 0; x < SudokeSize; x++)
+        private bool IsRowSafe(int number, int row)
+        {
+            for (int col = 0; col < SudokuSize; col++)
             {
-                if (SolvedSudoku[i, x] == number)
+                if (SolvedSudoku[row, col] == number)
                     return false;
             }
+            return true;
+        }
 
-            for (int x = 0; x < SudokeSize; x++)
+        private bool IsColumnSafe(int number, int col)
+        {
+            for (int row = 0; row < SudokuSize; row++)
             {
-                if (SolvedSudoku[x, j] == number)
+                if (SolvedSudoku[row, col] == number)
                     return false;
             }
+            return true;
+        }
 
-            int startRow = i - i % (int)Math.Sqrt(SudokeSize);
-            int startCol = j - j % (int)Math.Sqrt(SudokeSize);
-            for (int K = 0; K < Math.Sqrt(SudokeSize); K++)
+        private bool IsBoxSafe(int number, int row, int col)
+        {
+            int boxSize = (int)Math.Sqrt(SudokuSize);
+            int startRow = row - row % boxSize;
+            int startCol = col - col % boxSize;
+
+            for (int i = 0; i < boxSize; i++)
             {
-                for (int L = 0; L < Math.Sqrt(SudokeSize); L++)
+                for (int j = 0; j < boxSize; j++)
                 {
-                    if (SolvedSudoku[K + startRow, L + startCol] == number)
+                    if (SolvedSudoku[startRow + i, startCol + j] == number)
                         return false;
                 }
             }
             return true;
-
         }
-
     }
 }

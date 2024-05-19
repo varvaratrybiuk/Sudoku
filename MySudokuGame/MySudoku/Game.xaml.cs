@@ -24,55 +24,54 @@ namespace MySudoku
 {
     public partial class Gamexaml : Window
     {
-        private SudokuGame game;
-        private static bool ButtonSpec = false;
-        private BoardEditor? BoardEditor;
-        private SudokuLvl _lvl = SudokuLvl.Normal;
-        Stopwatch stopWatch = new Stopwatch();
-        DispatcherTimer dt = new DispatcherTimer();
+        private readonly SudokuGame _game;
+        private static bool _isSpecificButtonClicked = false;
+        private BoardEditor? _boardEditor;
+        private readonly SudokuLvl _level;
+        private readonly Stopwatch _stopWatch = new Stopwatch();
+        private readonly DispatcherTimer _timer = new DispatcherTimer();
 
-        public Gamexaml()
+        public Gamexaml() : this(SudokuLvl.Normal) { }
+
+        public Gamexaml(SudokuLvl level)
         {
             InitializeComponent();
-            game = new SudokuGame(SudokuLvl.Normal);
+            _level = level;
+            _game = new SudokuGame(_level);
             StartStopWatch();
         }
-        public Gamexaml(SudokuLvl lvl)
+
+        private void StartStopWatch()
         {
-            InitializeComponent();
-            _lvl = lvl;
-            game = new SudokuGame(_lvl);
-            StartStopWatch();
+            _stopWatch.Start();
+            _timer.Tick += Timer_Tick;
+            _timer.Interval = TimeSpan.FromMilliseconds(1);
+            _timer.Start();
         }
-        private  void StartStopWatch()
+
+        private void Timer_Tick(object sender, EventArgs e)
         {
-            stopWatch.Start();
-            dt.Tick += new EventHandler(dt_Tick);
-            dt.Interval = new TimeSpan(0, 0, 0, 0, 1);
-            dt.Start();
-        }
-        void dt_Tick(object? sender, EventArgs e)
-        {
-            if (stopWatch.IsRunning)
+            if (_stopWatch.IsRunning)
             {
-                TimeSpan ts = stopWatch.Elapsed;
-                time.Content = string.Format("{0:00}:{1:00}:{2:00}", ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+                var elapsed = _stopWatch.Elapsed;
+                time.Content = $"{elapsed.Minutes:00}:{elapsed.Seconds:00}:{elapsed.Milliseconds / 10:00}";
             }
         }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            game.StartGame();
-            BoardEditor = new BoardEditor(game.board);
+            _game.StartGame();
+            _boardEditor = new BoardEditor(_game.Board);
             InitializeBoard();
         }
 
         private void InitializeBoard()
         {
-            for (int i = 0; i < (int)_lvl; i++)
+            for (int i = 0; i < (int)_level; i++)
             {
-                for (int j = 0; j < (int)_lvl; j++)
+                for (int j = 0; j < (int)_level; j++)
                 {
-                    Border borderWTextBox = CreateTextBoxWithBorder(i, j);
+                    var borderWTextBox = CreateTextBoxWithBorder(i, j);
                     Field.Children.Add(borderWTextBox);
                     var textBox = borderWTextBox.Child as TextBox;
                     Grid.SetRow(textBox, i);
@@ -83,140 +82,143 @@ namespace MySudoku
 
         private Border CreateTextBoxWithBorder(int i, int j)
         {
-            TextBox textBox = new TextBox();
-            Cell? cell = game.GetCells().FirstOrDefault(c => c.row == i && c.col == j);
-            var border = new Border()
-            {
-                BorderThickness = GetThickness(i, j)
-            };
+            var textBox = new TextBox();
+            var cell = _game.GetCells().FirstOrDefault(c => c.Row == i && c.Col == j);
+            var border = new Border { BorderThickness = GetThickness(i, j) };
+
             if (cell != null)
-                {
-                    textBox.Text = cell.value.ToString();
-                    textBox.IsReadOnly = true;
-                    textBox.Name = "Use";
-                }
+            {
+                textBox.Text = cell.Value.ToString();
+                textBox.IsReadOnly = true;
+                textBox.Name = "Use";
+            }
             else
-                {
-                    textBox.TextChanged += Cell_TextChanged;
-                    textBox.PreviewMouseDown += Cell_PreviewMouseDown;
-                }
+            {
+                textBox.TextChanged += Cell_TextChanged;
+                textBox.PreviewMouseDown += Cell_PreviewMouseDown;
+            }
+
             border.Child = textBox;
             return border;
         }
+
         private Thickness GetThickness(int i, int j)
         {
-            var top = i % Math.Sqrt((int)_lvl) == 0 ? 1 : 0;
-            var bottom = i % Math.Sqrt((int)_lvl) == Math.Sqrt((int)_lvl) - 1 ? 1 : 0;
-            var left = j % Math.Sqrt((int)_lvl) == 0 ? 1 : 0;
-            var right = j % Math.Sqrt((int)_lvl) == Math.Sqrt((int)_lvl) - 1 ? 1 : 0;
-            return new Thickness(left, top, right, bottom);
+            double gridSize = Math.Sqrt((int)_level);
+            return new Thickness(
+                j % gridSize == 0 ? 1 : 0,
+                i % gridSize == 0 ? 1 : 0,
+                j % gridSize == gridSize - 1 ? 1 : 0,
+                i % gridSize == gridSize - 1 ? 1 : 0
+            );
         }
+
         private void Cell_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TextBox? textBox = sender as TextBox;
-            if (textBox != null && int.TryParse(textBox.Text, out int value))
+            if (sender is TextBox textBox && int.TryParse(textBox.Text, out int value))
             {
-                BoardEditor?.Save();
-                game.AddToBoard([Grid.GetRow(textBox), Grid.GetColumn(textBox)], value);
+                _boardEditor?.Save();
+                _game.AddToBoard(new[] { Grid.GetRow(textBox), Grid.GetColumn(textBox) }, value);
                 textBox.IsReadOnly = true;
             }
         }
+
         private void Random(object sender, RoutedEventArgs e)
         {
-            var infoarray = game.GetCells().Select(cell => new int[] { cell.row, cell.col }).ToList();
-            UsedHint(new OpenRandomCell(infoarray, (int)_lvl));
+            var usedCells = _game.GetCells().Select(cell => new[] { cell.Row, cell.Col }).ToList();
+            UseHint(new OpenRandomCell(usedCells, (int)_level));
         }
 
-        private void Specific(object sender, RoutedEventArgs e) => ButtonSpec = true;
+        private void Specific(object sender, RoutedEventArgs e) => _isSpecificButtonClicked = true;
 
         private void Cell_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 1 && ButtonSpec && sender is TextBox textBox)
+            if (e.ClickCount == 1 && _isSpecificButtonClicked && sender is TextBox textBox)
             {
-                UsedHint(new OpenSpecificCell(Grid.GetRow(textBox), Grid.GetColumn(textBox)));
-                ButtonSpec = false;
+                UseHint(new OpenSpecificCell(Grid.GetRow(textBox), Grid.GetColumn(textBox)));
+                _isSpecificButtonClicked = false;
             }
         }
+
         private void UpdateTextBox(Cell cell)
         {
             var border = Field.Children.OfType<Border>().FirstOrDefault(b =>
             {
-                TextBox? textBox = b.Child as TextBox;
-                return textBox != null && Grid.GetRow(textBox) == cell.row && Grid.GetColumn(textBox) == cell.col;
+                var textBox = b.Child as TextBox;
+                return textBox != null && Grid.GetRow(textBox) == cell.Row && Grid.GetColumn(textBox) == cell.Col;
             });
-            TextBox? textBox = border?.Child as TextBox;
-            if (textBox != null)
+
+            if (border?.Child is TextBox textBox)
             {
                 textBox.TextChanged -= Cell_TextChanged;
                 textBox.IsReadOnly = true;
-                textBox.Text = cell.value.ToString();
+                textBox.Text = cell.Value.ToString();
             }
         }
 
-        private void UsedHint(IHint hint)
+        private void UseHint(IHint hint)
         {
-            if (game.OpenCell(hint))
-                UpdateTextBox(game.GetCells().Last());
+            if (_game.OpenCell(hint))
+                UpdateTextBox(_game.GetCells().Last());
         }
+
         private void Redirection()
         {
             var userWindow = new UserWindow();
             userWindow.Show();
             Hide();
         }
+
         private void CheckSudoku(object sender, RoutedEventArgs e)
         {
             CheckCells();
-            CheckIfSudokuSolved();
-        }
-        private void CheckCells()
-        {
-            foreach (var border in Field.Children.OfType<Border>())
+            if (_game.FullBoard())
             {
-                TextBox? cell = border.Child as TextBox;
-                if (cell?.Name != "Use")
-                {
-                    int row = Grid.GetRow(cell);
-                    int column = Grid.GetColumn(cell);
-                    if (int.TryParse(cell?.Text, out int value))
-                    {
-                        if (!game.Check([row, column], value))
-                        {
-                            cell.Text = "";
-                            cell.IsReadOnly = false;
-                        }
-                        else
-                            cell.FontWeight = FontWeights.Bold;
-                        game.GetDraft().Clear();
-                        BoardEditor?.Clear();
-                    }
-                }
-            }
-        }
-
-        private void CheckIfSudokuSolved()
-        {
-            if (game.FullBoard())
-            {
-                stopWatch.Stop();
-                RatingGenerator.GetInstance().WriteToFile(_lvl.ToString(), time.Content.ToString());
+                _stopWatch.Stop();
+                RatingGenerator.GetInstance().WriteToFile(_level.ToString(), time.Content.ToString());
                 MessageBox.Show("Good Job!", "Win", MessageBoxButton.OK, MessageBoxImage.Information);
                 Redirection();
             }
         }
 
-        private void UndoStep(object sender, RoutedEventArgs e)
+        private void CheckCells()
         {
-            var oldCell = game.board.Draft.LastOrDefault();
-            BoardEditor?.Undo();
             foreach (var border in Field.Children.OfType<Border>())
             {
-                TextBox? cell = border.Child as TextBox;
-                if (cell?.Name != "Use" && oldCell != null)
+                if (border.Child is TextBox cell && cell.Name != "Use")
                 {
                     int row = Grid.GetRow(cell);
-                    int column = Grid.GetColumn(cell);
-                    if (!game.board.Draft.Contains(oldCell) && row == oldCell.row && column == oldCell.col)
+                    int col = Grid.GetColumn(cell);
+
+                    if (int.TryParse(cell.Text, out int value) && !_game.Check(new[] { row, col }, value))
+                    {
+                        cell.Text = "";
+                        cell.IsReadOnly = false;
+                    }
+                    else
+                    {
+                        cell.FontWeight = FontWeights.Bold;
+                    }
+
+                    _game.GetDraft().Clear();
+                    _boardEditor?.Clear();
+                }
+            }
+        }
+
+        private void UndoStep(object sender, RoutedEventArgs e)
+        {
+            var lastCell = _game.Board.Draft.LastOrDefault();
+            _boardEditor?.Undo();
+
+            foreach (var border in Field.Children.OfType<Border>())
+            {
+                if (border.Child is TextBox cell && cell.Name != "Use" && lastCell != null)
+                {
+                    int row = Grid.GetRow(cell);
+                    int col = Grid.GetColumn(cell);
+
+                    if (!_game.Board.Draft.Contains(lastCell) && row == lastCell.Row && col == lastCell.Col)
                     {
                         cell.Text = "";
                         cell.IsReadOnly = false;
@@ -232,12 +234,12 @@ namespace MySudoku
 
         private void Stop(object sender, RoutedEventArgs e)
         {
-           var result = MessageBox.Show("Are you sure?", "Stop game", MessageBoxButton.YesNo, MessageBoxImage.None);
+            var result = MessageBox.Show("Are you sure?", "Stop game", MessageBoxButton.YesNo, MessageBoxImage.None);
             if (result == MessageBoxResult.Yes)
             {
-                stopWatch.Stop();
+                _stopWatch.Stop();
                 Redirection();
-            } 
+            }
         }
     }
 }

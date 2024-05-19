@@ -23,17 +23,28 @@ namespace MySudoku
     /// </summary>
     public partial class UserWindow : Window
     {
-        public readonly Dictionary<string, SudokuLvl> Levels = new Dictionary<string, SudokuLvl>()
-            {
-                { "Easy", SudokuLvl.Easy },
-                { "Normal", SudokuLvl.Normal },
-                { "Hard", SudokuLvl.Hard }
-            };
+        private readonly Dictionary<string, SudokuLvl> _levels = new Dictionary<string, SudokuLvl>
+        {
+            { "Easy", SudokuLvl.Easy },
+            { "Normal", SudokuLvl.Normal },
+            { "Hard", SudokuLvl.Hard }
+        };
+
         public UserWindow()
         {
             InitializeComponent();
-            lvls.ItemsSource = Levels.Keys;
+            InitializeLevels();
+            InitializeRating();
+        }
+
+        private void InitializeLevels()
+        {
+            lvls.ItemsSource = _levels.Keys.ToList();
             lvls.SelectedIndex = 0;
+        }
+
+        private void InitializeRating()
+        {
             rating.ItemsSource = RatingGenerator.GetInstance().GenerateDataTable().DefaultView;
         }
 
@@ -50,7 +61,7 @@ namespace MySudoku
         private bool TryGetSelectedLevel(out SudokuLvl level)
         {
             level = SudokuLvl.Easy;
-            if (lvls.SelectedValue is string choosedlvl && Levels.TryGetValue(choosedlvl, out SudokuLvl lvl))
+            if (lvls.SelectedValue is string selectedLevel && _levels.TryGetValue(selectedLevel, out SudokuLvl lvl))
             {
                 level = lvl;
                 return true;
@@ -62,6 +73,5 @@ namespace MySudoku
         {
             Application.Current.Shutdown();
         }
-
     }
 }
