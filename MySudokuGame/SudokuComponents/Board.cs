@@ -10,18 +10,23 @@ using System.Threading.Tasks;
 
 namespace SudokuComponents
 {
-   public class Board
+    public class Board
     {
-        public List<Cell> cells { get; private set; } = new List<Cell>();
-        public int Size { get; private set; }
-        public List<Cell> Draft {  get; set; } = new List<Cell> ();
+        public List<Cell> Cells { get; private set; } = new List<Cell>();
+        public int Size { get; }
+        public List<Cell> Draft { get; private set; } = new List<Cell>();
+
         public Board(int size) => Size = size;
+
         public bool TryFillCell(Cell cell)
         {
-            if(cells.Any(old => old.row == cell.row && old.col == cell.col)) return false;
-            cells.Add(cell);
+            if (Cells.Any(old => old.Row == cell.Row && old.Col == cell.Col)) 
+                return false;
+        
+            Cells.Add(cell);
             return true;
         }
+
         public IBoardSnapshot Save()
         {
             return new BoardSnapshot(this);
@@ -29,10 +34,9 @@ namespace SudokuComponents
 
         public void Restore(IBoardSnapshot snapshot)
         {
-            if (snapshot is BoardSnapshot)
+            if (snapshot is BoardSnapshot boardSnapshot)
             {
-                var memento = (BoardSnapshot)snapshot;
-                Draft = new List<Cell>(memento._draft);
+                Draft = new List<Cell>(boardSnapshot.Draft);
             }
             else
             {

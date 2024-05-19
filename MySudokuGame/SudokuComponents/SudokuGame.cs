@@ -11,14 +11,16 @@ namespace SudokuComponents
 {
     public class SudokuGame
     {
-        public Board board { get; }
+        public Board Board { get; }
         private IHint? _hint;
         private Generator _solver;
+
         public SudokuGame(SudokuLvl lvl)
         {
-            board = new Board((int)lvl);
+            Board = new Board((int)lvl);
             _solver = new Generator(lvl);
         }
+
         public void StartGame()
         {
             _solver.Generate();
@@ -32,19 +34,21 @@ namespace SudokuComponents
             for (int i = 0; i < size; i++)
             {
                 int j = random.Next(1, size);
-                board.TryFillCell(new Cell([i, j], _solver.SolvedSudoku[i, j]));
+                Board.TryFillCell(new Cell([i, j], _solver.SolvedSudoku[i, j]));
             }
         }
+
         public void AddToBoard(int[] values, int n)
         {
-            board.Draft.Add(new Cell(values, n));
+            Board.Draft.Add(new Cell(values, n));
         }
+
         public bool OpenCell(IHint hint)
         {
             var result = hint.Execute();
             if (result != null)
             {
-                if (!board.TryFillCell(new Cell(result, _solver.SolvedSudoku[result[0], result[1]])))
+                if (!Board.TryFillCell(new Cell(result, _solver.SolvedSudoku[result[0], result[1]])))
                 {
                     return false;
                 }
@@ -57,27 +61,22 @@ namespace SudokuComponents
         {
             int i = values[0];
             int j = values[1];
-            if (_solver.SolvedSudoku[i, j] == n)
-            {
-                board.TryFillCell(new Cell(values, n));
-                return true;
-            }
-            return false;
+            return _solver.SolvedSudoku[i, j] == n && Board.TryFillCell(new Cell(values, n));
         }
+
         public bool FullBoard()
         {
-            if(board.cells.Count == _solver.SolvedSudoku.Length)
-                return true;
-            return false;
+            return Board.Cells.Count == _solver.SolvedSudoku.Length;
         }
+
         public List<Cell> GetCells()
         {
-            return board.cells;
+            return Board.Cells;
         }
+
         public List<Cell> GetDraft()
         {
-            return board.Draft;
+            return Board.Draft;
         }
     }
-
 }
