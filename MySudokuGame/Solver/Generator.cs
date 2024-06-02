@@ -3,12 +3,12 @@ using System.Reflection.Emit;
 
 namespace Solver
 {
-    public  class Generator
+    public class Generator
     {
-        public  int[,] SolvedSudoku { get; private set; }
-        public  SudokuLvl _level;
-        private  int SudokeSize;
-        public Generator( SudokuLvl level)
+        public int[,] SolvedSudoku { get; private set; }
+        private SudokuLvl _level;
+        private int SudokeSize;
+        public Generator(SudokuLvl level)
         {
             _level = level;
             SudokeSize = (int)_level;
@@ -21,7 +21,7 @@ namespace Solver
             return GenerateHelper(0, 0, array);
         }
 
-        private  bool GenerateHelper(int i, int j, List<int> array)
+        private bool GenerateHelper(int i, int j, List<int> array)
         {
             if (i == SudokeSize)
             {
@@ -44,7 +44,7 @@ namespace Solver
             }
             return false;
         }
-        private  List<int> ShuffleMix()
+        private List<int> ShuffleMix()
         {
             var numbers = Enumerable.Range(1, SudokeSize).ToList();
             Random rad = new Random();
@@ -57,7 +57,7 @@ namespace Solver
             }
             return numbers;
         }
-        private  bool isSafe(int number, int i, int j)
+        private bool isSafe(int number, int i, int j)
         {
 
             for (int x = 0; x < SudokeSize; x++)
@@ -87,4 +87,5 @@ namespace Solver
         }
 
     }
+
 }

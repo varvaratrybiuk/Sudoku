@@ -25,7 +25,7 @@ namespace MySudoku
     public partial class Gamexaml : Window
     {
         private SudokuGame game;
-        private static bool ButtonSpec = false;
+        private static bool isSpecificButtonPressed = false;
         private BoardEditor? BoardEditor;
         private SudokuLvl _lvl = SudokuLvl.Normal;
         Stopwatch stopWatch = new Stopwatch();
@@ -44,7 +44,7 @@ namespace MySudoku
             game = new SudokuGame(_lvl);
             StartStopWatch();
         }
-        private  void StartStopWatch()
+        private void StartStopWatch()
         {
             stopWatch.Start();
             dt.Tick += new EventHandler(dt_Tick);
@@ -90,16 +90,16 @@ namespace MySudoku
                 BorderThickness = GetThickness(i, j)
             };
             if (cell != null)
-                {
-                    textBox.Text = cell.value.ToString();
-                    textBox.IsReadOnly = true;
-                    textBox.Name = "Use";
-                }
+            {
+                textBox.Text = cell.value.ToString();
+                textBox.IsReadOnly = true;
+                textBox.Name = "UsedCell";
+            }
             else
-                {
-                    textBox.TextChanged += Cell_TextChanged;
-                    textBox.PreviewMouseDown += Cell_PreviewMouseDown;
-                }
+            {
+                textBox.TextChanged += Cell_TextChanged;
+                textBox.PreviewMouseDown += Cell_PreviewMouseDown;
+            }
             border.Child = textBox;
             return border;
         }
@@ -127,14 +127,14 @@ namespace MySudoku
             UsedHint(new OpenRandomCell(infoarray, (int)_lvl));
         }
 
-        private void Specific(object sender, RoutedEventArgs e) => ButtonSpec = true;
+        private void Specific(object sender, RoutedEventArgs e) => isSpecificButtonPressed = true;
 
         private void Cell_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 1 && ButtonSpec && sender is TextBox textBox)
+            if (e.ClickCount == 1 && isSpecificButtonPressed && sender is TextBox textBox)
             {
                 UsedHint(new OpenSpecificCell(Grid.GetRow(textBox), Grid.GetColumn(textBox)));
-                ButtonSpec = false;
+                isSpecificButtonPressed = false;
             }
         }
         private void UpdateTextBox(Cell cell)
@@ -158,7 +158,7 @@ namespace MySudoku
             if (game.OpenCell(hint))
                 UpdateTextBox(game.GetCells().Last());
         }
-        private void Redirection()
+        private void RedirectToUserWindow()
         {
             var userWindow = new UserWindow();
             userWindow.Show();
@@ -174,17 +174,14 @@ namespace MySudoku
             foreach (var border in Field.Children.OfType<Border>())
             {
                 TextBox? cell = border.Child as TextBox;
-                if (cell?.Name != "Use")
+                if (cell?.Name != "UsedCell")
                 {
                     int row = Grid.GetRow(cell);
                     int column = Grid.GetColumn(cell);
                     if (int.TryParse(cell?.Text, out int value))
                     {
                         if (!game.Check([row, column], value))
-                        {
-                            cell.Text = "";
-                            cell.IsReadOnly = false;
-                        }
+                            ClearCell(cell);
                         else
                             cell.FontWeight = FontWeights.Bold;
                         game.GetDraft().Clear();
@@ -201,10 +198,14 @@ namespace MySudoku
                 stopWatch.Stop();
                 RatingGenerator.GetInstance().WriteToFile(_lvl.ToString(), time.Content.ToString());
                 MessageBox.Show("Good Job!", "Win", MessageBoxButton.OK, MessageBoxImage.Information);
-                Redirection();
+                RedirectToUserWindow();
             }
         }
-
+        private void ClearCell(TextBox cell)
+        {
+            cell.Text = "";
+            cell.IsReadOnly = false;
+        }
         private void UndoStep(object sender, RoutedEventArgs e)
         {
             var oldCell = game.board.Draft.LastOrDefault();
@@ -212,15 +213,12 @@ namespace MySudoku
             foreach (var border in Field.Children.OfType<Border>())
             {
                 TextBox? cell = border.Child as TextBox;
-                if (cell?.Name != "Use" && oldCell != null)
+                if (cell?.Name != "UsedCell" && oldCell != null)
                 {
                     int row = Grid.GetRow(cell);
                     int column = Grid.GetColumn(cell);
                     if (!game.board.Draft.Contains(oldCell) && row == oldCell.row && column == oldCell.col)
-                    {
-                        cell.Text = "";
-                        cell.IsReadOnly = false;
-                    }
+                        ClearCell(cell);
                 }
             }
         }
@@ -230,14 +228,14 @@ namespace MySudoku
             Application.Current.Shutdown();
         }
 
-        private void Stop(object sender, RoutedEventArgs e)
+        private void StopGame(object sender, RoutedEventArgs e)
         {
-           var result = MessageBox.Show("Are you sure?", "Stop game", MessageBoxButton.YesNo, MessageBoxImage.None);
+            var result = MessageBox.Show("Are you sure?", "Stop game", MessageBoxButton.YesNo, MessageBoxImage.None);
             if (result == MessageBoxResult.Yes)
             {
                 stopWatch.Stop();
-                Redirection();
-            } 
+                RedirectToUserWindow();
+            }
         }
     }
 }
