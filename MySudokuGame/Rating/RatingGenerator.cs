@@ -36,17 +36,10 @@ namespace Rating
         }
         public Dictionary<string, List<string>> ReadRatingFile()
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            FileInfo fileInfo = new FileInfo(_filePath);
             Dictionary<string, List<string>> data = new();
 
-            using (ExcelPackage package = new ExcelPackage(fileInfo))
+            WorkWithWorksheet((worksheet, rowCount, colCount) =>
             {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                int rowCount = worksheet.Dimension.End.Row;
-                int colCount = worksheet.Dimension.End.Column;
-
                 for (int colNumber = 1; colNumber <= colCount; colNumber++)
                 {
                     List<string> columnData = new List<string>();
@@ -55,18 +48,33 @@ namespace Rating
                     {
                         columnData.Add(worksheet.Cells[rowNumber, colNumber].Value?.ToString());
                     }
-                    columnData.Sort((a, b) =>
-                    {
-                        if (a == null && b == null) return 0;
-                        if (a == null) return 1;
-                        if (b == null) return -1;
-                        return a.CompareTo(b);
-                    });
+                    columnData.Sort(CompareNullableStrings);
                     data.Add(columnName, columnData);
                 }
-            }
+            });
 
             return data;
+        }
+
+        private void WorkWithWorksheet(Action<ExcelWorksheet, int, int> workSheetAction)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            FileInfo fileInfo = new FileInfo(_filePath);
+            using (ExcelPackage package = new ExcelPackage(fileInfo))
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                int rowCount = worksheet.Dimension.End.Row;
+                int colCount = worksheet.Dimension.End.Column;
+                workSheetAction.Invoke(worksheet, rowCount, colCount);
+                package.Save();
+            }
+        }
+        private int CompareNullableStrings(string a, string b)
+        {
+            if (a == null && b == null) return 0;
+            if (a == null) return 1;
+            if (b == null) return -1;
+            return a.CompareTo(b);
         }
         public DataTable GenerateDataTable()
         {
@@ -93,16 +101,10 @@ namespace Rating
 
             return dt;
         }
-        public void  WriteToFile(string columnName, string time)
+        public void WriteToFile(string columnName, string time)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            FileInfo fileInfo = new FileInfo(_filePath);
-
-            using (ExcelPackage package = new ExcelPackage(fileInfo))
+            WorkWithWorksheet((worksheet, rowCount, colCount) =>
             {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                int rowCount = worksheet.Dimension.End.Row;
-                int colCount = worksheet.Dimension.End.Column;
                 int columnIndex = 0;
                 for (int i = 1; i <= colCount; i++)
                 {
@@ -116,9 +118,9 @@ namespace Rating
                 {
                     return;
                 }
+
                 worksheet.Cells[rowCount + 1, columnIndex].Value = time;
-                package.Save();
-            }
+            });
         }
     }
 }
